@@ -26,6 +26,7 @@
 */
 
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,21 +37,17 @@ void bitcopy(void *dst, const void *src,
 	     const unsigned long bits[], const size_t length)
 {
   char *d = dst;
-  char value = 0;
   const char *s = src;
-  size_t idx = 0;
-  unsigned long bit = 0;
 
   for(size_t i = 0; i < length; i++)
     {
-      bit = bits[i] % 8;
-      idx = (size_t) (bits[i] >> 3);
-      value = (s[idx] >> bit) & 1;
+      unsigned long bit = bits[i] % 8;
+      size_t idx = bits[i] >> 3; // Divide by eight.
 
-      if(value)
-	d[idx] |= (char) (1 << bit);
+      if(((1 << bit) & s[idx])) // Is the bit set?
+	d[idx] |= (char) (1 << bit); // Set the bit.
       else
-	d[idx] &= (char) (~(1 << bit));
+	d[idx] &= (char) (~(1 << bit)); // Clear the bit.
     }
 }
 
@@ -58,25 +55,39 @@ int main(void)
 {
   char a[] = "Pleaze see the doctox!";
   char b[] = "Please see the doctor!";
-  unsigned long bits[] = {8 * 4,
-			  8 * 4 + 1,
-			  8 * 4 + 2,
-			  8 * 4 + 3,
-			  8 * 4 + 4,
-			  8 * 4 + 5,
-			  8 * 4 + 6,
-			  8 * 4 + 7,
-			  8 * 20,
-			  8 * 20 + 1,
-			  8 * 20 + 2,
-			  8 * 20 + 3,
-			  8 * 20 + 4,
-			  8 * 20 + 5,
-			  8 * 20 + 6,
-			  8 * 20 + 7};
+  int32_t x = 101;
+  int32_t y = 202;
+  unsigned long bits_ab[] = {8 * 4,
+			     8 * 4 + 1,
+			     8 * 4 + 2,
+			     8 * 4 + 3,
+			     8 * 4 + 4,
+			     8 * 4 + 5,
+			     8 * 4 + 6,
+			     8 * 4 + 7,
+			     8 * 20,
+			     8 * 20 + 1,
+			     8 * 20 + 2,
+			     8 * 20 + 3,
+			     8 * 20 + 4,
+			     8 * 20 + 5,
+			     8 * 20 + 6,
+			     8 * 20 + 7};
+  unsigned long bits_xy[] = {0, 1, 2, 3, 4, 5, 6, 7,
+			     8 * 3,
+			     8 * 3 + 1,
+			     8 * 3 + 2,
+			     8 * 3 + 3,
+			     8 * 3 + 4,
+			     8 * 3 + 5,
+			     8 * 3 + 6,
+			     8 * 3 + 7};
 
   printf("a = %s, b = %s.\n", a, b);
-  bitcopy(a, b, bits, sizeof(bits) / sizeof(unsigned long));
+  bitcopy(a, b, bits_ab, sizeof(bits_ab) / sizeof(unsigned long));
   printf("a = %s, b = %s.\n", a, b);
+  printf("x = %d, y = %d.\n", x, y);
+  bitcopy(&x, &y, bits_xy, sizeof(bits_xy) / sizeof(unsigned long));
+  printf("x = %d, y = %d.\n", x, y);
   return EXIT_SUCCESS;
 }
