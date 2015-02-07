@@ -26,9 +26,39 @@
 */
 
 #include <limits.h>
+#ifdef BITCOPY_WITH_PTHREAD
+#include <pthread.h>
+#endif
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef BITCOPY_WITH_PTHREAD
+struct thread_structure
+{
+  char *d;
+  const char *s;
+  size_t bit;
+};
+
+void *copysingle(void *arg)
+{
+  struct thread_structure *t = (struct thread_structure *) arg;
+
+  if(!t)
+    return t;
+
+  size_t bit = t->bit % 8;
+  size_t idx = t->bit >> 3; // Divide by eight.
+
+  if(((1 << bit) & t->s[idx])) // Is the bit set?
+    t->d[idx] |= (char) (1 << bit); // Set the bit.
+  else
+    t->d[idx] &= (char) (~(1 << bit)); // Clear the bit.
+
+  return t;
+}
+#endif
 
 void bitcopy(void *dst, const void *src,
 	     const size_t bits[], const size_t length);
@@ -39,6 +69,46 @@ void bitcopy(void *dst, const void *src,
   char *d = dst;
   const char *s = src;
 
+#ifdef BITCOPY_WITH_PTHREAD
+  pthread_t *threads = calloc(length, sizeof(pthread_t));
+  struct thread_structure *t = calloc
+    (length, sizeof(struct thread_structure));
+
+  if(!t || !threads)
+    {
+      free(t);
+      free(threads);
+      return;
+    }
+
+  int error = 0;
+
+  for(size_t i = 0; i < length; i++)
+    {
+      t[i].bit = bits[i];
+      t[i].d = d;
+      t[i].s = s;
+
+      if(pthread_create(&threads[i], 0, copysingle, &t[i]) != 0)
+	{
+	  error = 1;
+	  break;
+	}
+    }
+
+  if(error)
+    {
+      free(t);
+      free(threads);
+      return;
+    }
+
+  for(size_t i = 0; i < length; i++)
+    pthread_join(threads[i], 0);
+
+  free(t);
+  free(threads);
+#else
   for(size_t i = 0; i < length; i++)
     {
       size_t bit = bits[i] % 8;
@@ -49,6 +119,7 @@ void bitcopy(void *dst, const void *src,
       else
 	d[idx] &= (char) (~(1 << bit)); // Clear the bit.
     }
+#endif
 }
 
 int main(void)
