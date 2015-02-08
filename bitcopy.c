@@ -84,7 +84,7 @@ void bitcopy(void *dst, const void *src,
       return;
     }
 
-  int error = 0;
+  size_t error = 0;
 
   for(size_t i = 0; i < length; i++)
     {
@@ -94,13 +94,16 @@ void bitcopy(void *dst, const void *src,
 
       if(pthread_create(&threads[i], 0, copysingle, &t[i]) != 0)
 	{
-	  error = 1;
+	  error = i + 1;
 	  break;
 	}
     }
 
-  if(error)
+  if(error > 0)
     {
+      for(int i = 0; i < error - 1; i++)
+	pthread_join(threads[i], 0);
+
       free(t);
       free(threads);
       return;
