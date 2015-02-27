@@ -160,11 +160,11 @@ int main(void)
 		      8 * 3 + 6,
 		      8 * 3 + 7};
 
-  printf("a = %s, b = %s.\n", a, b);
+  printf("Before: a = %s, b = %s.\n", a, b);
   bitcopy(a, b, bits_ab, sizeof(bits_ab) / sizeof(size_t));
-  printf("a = %s, b = %s.\n", a, b);
-  printf("x = %d, y = %d.\n", x, y);
+  printf("After: a = %s, b = %s.\n", a, b);
+  printf("Before: x = %d, y = %d.\n", x, y);
   bitcopy(&x, &y, bits_xy, sizeof(bits_xy) / sizeof(size_t));
-  printf("x = %d, y = %d.\n", x, y);
+  printf("After: x = %d, y = %d.\n", x, y);
   return EXIT_SUCCESS;
 }
