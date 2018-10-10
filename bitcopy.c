@@ -66,7 +66,7 @@ void bitcopy(void *dst, const void *src,
 void bitcopy(void *dst, const void *src,
 	     const size_t bits[], const size_t length)
 {
-  if(length <= 0)
+  if(length == 0)
     return;
 
   char *d = dst;
