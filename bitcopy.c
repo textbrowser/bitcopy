@@ -60,11 +60,15 @@ void *copysingle(void *arg)
 }
 #endif
 
-void bitcopy(void *dst, const void *src,
-	     const size_t bits[], const size_t length);
+void bitcopy(void *dst,
+	     const void *src,
+	     const size_t bits[],
+	     const size_t length);
 
-void bitcopy(void *dst, const void *src,
-	     const size_t bits[], const size_t length)
+void bitcopy(void *dst,
+	     const void *src,
+	     const size_t bits[],
+	     const size_t length)
 {
   if(length == 0)
     return;
@@ -150,7 +154,14 @@ int main(void)
 		      8 * 20 + 5,
 		      8 * 20 + 6,
 		      8 * 20 + 7};
-  size_t bits_xy[] = {0, 1, 2, 3, 4, 5, 6, 7,
+  size_t bits_xy[] = {0,
+		      1,
+		      2,
+		      3,
+		      4,
+		      5,
+		      6,
+		      7,
 	 	      8 * 3,
 		      8 * 3 + 1,
 		      8 * 3 + 2,
